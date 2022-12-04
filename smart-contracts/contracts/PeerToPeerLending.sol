@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.5.16;
 
 import './common/SafeMath.sol';
 import './common/Destructible.sol';
@@ -42,7 +42,7 @@ contract PeerToPeerLending is Destructible {
     event LogUserSetFraud(address indexed _address, bool fraudStatus, uint timestamp);
 
     /** @dev Constructor */
-    function PeerToPeerLending() public {
+    constructor () public {
 
     }
 
@@ -89,14 +89,14 @@ contract PeerToPeerLending is Destructible {
     /** @dev Get the list with all credits.
       * @return credits Returns list of credit addresses.
       */
-    function getCredits() public view returns (address[]) {
+    function getCredits() public view returns (address[] memory) {
         return credits;
     }
 
     /** @dev Get all users credits.
       * @return users[msg.sender].allCredits Return user credits.
       */
-    function getUserCredits() public view returns (address[]) {
+    function getUserCredits() public view returns (address[] memory) {
         return users[msg.sender].allCredits;
     }
 
