@@ -5,7 +5,7 @@ const helpers = require('handlebars-helpers')()
 
 module.exports = (app) => {
     
-    app.engine('handlebars', handlebars({
+    app.engine('handlebars', handlebars.engine({
         defaultLayout: 'main'
     }))
     app.set('view engine', 'handlebars')
