@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.5.16;
 
 import './common/SafeMath.sol';
 import './common/Destructible.sol';
@@ -140,7 +140,7 @@ contract Credit is Destructible {
     }
 
     modifier canWithdraw() {
-        require(this.balance >= requestedAmount);
+        require(address(this).balance >= requestedAmount);
         _;
     }
 
@@ -165,7 +165,7 @@ contract Credit is Destructible {
       * @param _requestedRepayments Requested number of repayments.
       * @param _description Credit description.
       */
-    function Credit(uint _requestedAmount, uint _requestedRepayments, uint _interest, bytes32 _description) public {
+    constructor (uint _requestedAmount, uint _requestedRepayments, uint _interest, bytes32 _description) public {
 
         /** Set the borrower of the contract to the tx.origin
           * We are using tx.origin, because the contract is going to be published
@@ -208,10 +208,10 @@ contract Credit is Destructible {
     }
 
     /** @dev Get current balance.
-      * @return this.balance.
+      * @return address(this).balance.
       */
     function getBalance() public view returns (uint256) {
-        return this.balance;
+        return address(this).balance;
     }
 
     /** @dev Invest function.
@@ -223,13 +223,13 @@ contract Credit is Destructible {
         uint extraMoney = 0;
 
         // Check if contract balance is reached the requested amount.
-        if (this.balance >= requestedAmount) {
+        if (address(this).balance >= requestedAmount) {
 
             // Calculate the extra money that may have been sent.
-            extraMoney = this.balance.sub(requestedAmount);
+            extraMoney = address(this).balance.sub(requestedAmount);
 
             // Assert the calculations
-            assert(requestedAmount == this.balance.sub(extraMoney));
+            assert(requestedAmount == address(this).balance.sub(extraMoney));
 
             // Assert for possible underflow / overflow
             assert(extraMoney <= msg.value);
@@ -346,10 +346,10 @@ contract Credit is Destructible {
         LogCreditStateChanged(state, block.timestamp);
 
         // Log borrower withdrawal.
-        LogBorrowerWithdrawal(msg.sender, this.balance, block.timestamp);
+        LogBorrowerWithdrawal(msg.sender, address(this).balance, block.timestamp);
 
         // Transfer the gathered amount to the credit borrower.
-        borrower.transfer(this.balance);
+        borrower.transfer(address(this).balance);
     }
 
     /** @dev Request interest function.
@@ -366,7 +366,7 @@ contract Credit is Destructible {
         uint lenderReturnAmount = returnAmount / lendersCount;
 
         // Assert the contract has enough balance to pay the lender.
-        assert(this.balance >= lenderReturnAmount);
+        assert(address(this).balance >= lenderReturnAmount);
 
         // Transfer the return amount with interest to the lender.
         msg.sender.transfer(lenderReturnAmount);
@@ -375,7 +375,7 @@ contract Credit is Destructible {
         LogLenderWithdrawal(msg.sender, lenderReturnAmount, block.timestamp);
 
         // Check if the contract balance is drawned.
-        if (this.balance == 0) {
+        if (address(this).balance == 0) {
 
             // Set the active state to false.
             active = false;
@@ -401,7 +401,7 @@ contract Credit is Destructible {
       * @return returnAmount
       * @return state
       * @return active
-      * @return this.balance
+      * @return address(this).balance
       */
     function getCreditInfo() public view returns (address, bytes32, uint, uint, uint, uint, uint, uint, State, bool, uint) {
         return (
@@ -415,7 +415,7 @@ contract Credit is Destructible {
         returnAmount,
         state,
         active,
-        this.balance
+        address(this).balance
         );
     }
 
@@ -454,7 +454,7 @@ contract Credit is Destructible {
     /** @dev Function for refunding people. */
     function refund() public isActive onlyLender isRevoked {
         // assert the contract have enough balance.
-        assert(this.balance >= lendersInvestedAmount[msg.sender]);
+        assert(address(this).balance >= lendersInvestedAmount[msg.sender]);
 
         // Transfer the return amount with interest to the lender.
         msg.sender.transfer(lendersInvestedAmount[msg.sender]);
@@ -463,7 +463,7 @@ contract Credit is Destructible {
         LogLenderRefunded(msg.sender, lendersInvestedAmount[msg.sender], block.timestamp);
 
         // Check if the contract balance is drawned.
-        if (this.balance == 0) {
+        if (address(this).balance == 0) {
 
             // Set the active state to false.
             active = false;
